@@ -4,7 +4,7 @@
 
 EAPI=5
 
-RUBY_TARGETS="{{ ebuildgen.ruby_targets }}"
+USE_RUBY="{{ ebuildgen.ruby_targets }}"
 
 inherit ruby-fakegem
 
