@@ -163,9 +163,11 @@ def craft_json(res_pkg, res_pkg_search):
 
 def create_deps(dependencies):
     calc_deps = []
+
     for dep in dependencies:
-        depoperator, depversion = str.split(dep['requirements'], ' ')
-        calc_deps.append('%sdev-ruby/%s-%s' % (depoperator, dep['name'],
+        for req in str.split(dep['requirements'], ', '):
+            depoperator, depversion = str.split(req, ' ')
+            calc_deps.append('%sdev-ruby/%s-%s' % (depoperator, dep['name'],
                                                depversion))
 
     return '\n\t'.join(calc_deps)
