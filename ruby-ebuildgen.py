@@ -167,8 +167,11 @@ def create_deps(dependencies):
     for dep in dependencies:
         for req in str.split(dep['requirements'], ', '):
             depoperator, depversion = str.split(req, ' ')
-            calc_deps.append('%sdev-ruby/%s-%s' % (depoperator, dep['name'],
-                                               depversion))
+            separator = '-'
+            if depversion == '0':
+                depversion = separator = depoperator = ''
+            calc_deps.append('%sdev-ruby/%s%s%s' % (depoperator, dep['name'],
+                                                    separator, depversion))
 
     return '\n\t'.join(calc_deps)
 
