@@ -179,9 +179,10 @@ def create_deps(dependencies):
                 depoperator = "<"
                 depversion = re.split(r'\.', depversion)
                 depversion = depversion[0:-1]
-                depversion[-1] = str(int(depversion[-1]) + 1)
-                depversion = '.'.join(depversion)
-                calc_deps.append('%sdev-ruby/%s%s%s' % (depoperator,
+                if depversion != []:
+                    depversion[-1] = str(int(depversion[-1]) + 1)
+                    depversion = '.'.join(depversion)
+                    calc_deps.append('%sdev-ruby/%s%s%s' % (depoperator,
                                                         dep['name'], separator,
                                                         depversion))
             else:
