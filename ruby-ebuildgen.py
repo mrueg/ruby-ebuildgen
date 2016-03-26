@@ -8,6 +8,7 @@ import requests
 from jinja2 import Environment, FileSystemLoader
 import os
 import sys
+import re
 import configargparse
 from datetime import date
 
@@ -170,8 +171,23 @@ def create_deps(dependencies):
             separator = '-'
             if depversion == '0':
                 depversion = separator = depoperator = ''
-            calc_deps.append('%sdev-ruby/%s%s%s' % (depoperator, dep['name'],
-                                                    separator, depversion))
+            if depoperator == '~>':
+                depoperator = ">="
+                calc_deps.append('%sdev-ruby/%s%s%s' % (depoperator,
+                                                        dep['name'], separator,
+                                                        depversion))
+                depoperator = "<"
+                depversion = re.split(r'\.', depversion)
+                depversion = depversion[0:-1]
+                depversion[-1] = str(int(depversion[-1]) + 1)
+                depversion = '.'.join(depversion)
+                calc_deps.append('%sdev-ruby/%s%s%s' % (depoperator,
+                                                        dep['name'], separator,
+                                                        depversion))
+            else:
+                calc_deps.append('%sdev-ruby/%s%s%s' % (depoperator,
+                                                        dep['name'], separator,
+                                                        depversion))
 
     return '\n\t'.join(calc_deps)
 
