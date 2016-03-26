@@ -87,38 +87,38 @@ def craft_json(res_pkg, res_pkg_search):
     ebuildgen = {}
     try:
         ebuildgen['version'] = res_pkg['number']
-    except KeyError:
+    except (KeyError, TypeError):
         sys.write.stdout("No version given")
         exit(-1)
 
     ebuildgen['licenses'] = set()
     try:
         ebuildgen['licenses'].update(res_pkg['licenses'])
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     try:
         ebuildgen['licenses'].update(res_pkg_search['licenses'])
-    except KeyError:
+    except (KeyError, TypeError):
         pass
 
     ebuildgen['description'] = ''
     try:
         ebuildgen['description'] = res_pkg['description']
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     if ebuildgen['description'] == '':
         try:
             ebuildgen['description'] = res_pkg['summary']
-        except KeyError:
+        except (KeyError, TypeError):
             pass
     try:
         ebuildgen['description'] = res_pkg_search['description']
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     if ebuildgen['description'] == '':
         try:
             ebuildgen['description'] = res_pkg_search['summary']
-        except KeyError:
+        except (KeyError, TypeError):
             pass
 
     ebuildgen['homepage'] = set()
