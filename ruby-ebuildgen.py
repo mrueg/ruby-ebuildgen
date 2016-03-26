@@ -74,44 +74,45 @@ def get_json(pkg_name, pkg_version=None):
         sys.stderr.write("%s not found in API all response" % (pkg_name))
         exit(-1)
 
-    return res_pkg_search, res_pkg
+    return res_pkg, res_pkg_search
 
 
 def craft_json(res_pkg, res_pkg_search):
     '''
     Generates a suitable json based on the information
+    :param res_pkg Result from direct query
+    :param res_pkg_search Matching result from search query
+    :return
     '''
-
     ebuildgen = {}
-
     try:
-        ebuildgen['version'] = res_pkg['version']
+        ebuildgen['version'] = res_pkg['number']
     except KeyError:
         sys.write.stdout("No version given")
         exit(-1)
 
     ebuildgen['licenses'] = set()
     try:
-        ebuildgen['licenses'].update(res_pkg_search['licenses'])
+        ebuildgen['licenses'].update(res_pkg['licenses'])
     except KeyError:
         pass
     try:
-        ebuildgen['licenses'].update(res_pkg['licenses'])
+        ebuildgen['licenses'].update(res_pkg_search['licenses'])
     except KeyError:
         pass
 
     ebuildgen['description'] = ''
     try:
-        ebuildgen['description'] = res_pkg_search['description']
+        ebuildgen['description'] = res_pkg['description']
     except KeyError:
         pass
     if ebuildgen['description'] == '':
         try:
-            ebuildgen['description'] = res_pkg_search['summary']
+            ebuildgen['description'] = res_pkg['summary']
         except KeyError:
             pass
     try:
-        ebuildgen['description'] = res_pkg['description']
+        ebuildgen['description'] = res_pkg_search['description']
     except KeyError:
         pass
     if ebuildgen['description'] == '':
@@ -122,15 +123,15 @@ def craft_json(res_pkg, res_pkg_search):
 
     ebuildgen['homepage'] = set()
     try:
-        ebuildgen['homepage'].add(res_pkg['homepage_uri'])
+        ebuildgen['homepage'].add(res_pkg_search['homepage_uri'])
     except KeyError:
         pass
     try:
-        ebuildgen['homepage'].add(res_pkg['project_uri'])
+        ebuildgen['homepage'].add(res_pkg_search['project_uri'])
     except KeyError:
         pass
     try:
-        ebuildgen['homepage'].add(res_pkg['source_code_uri'])
+        ebuildgen['homepage'].add(res_pkg_search['source_code_uri'])
     except KeyError:
         pass
 
@@ -148,12 +149,12 @@ def craft_json(res_pkg, res_pkg_search):
     except Exception:
         ebuildgen['homepage'] = ''
 
-    rdeps = create_deps(res_pkg['dependencies']['runtime'])
+    rdeps = create_deps(res_pkg_search['dependencies']['runtime'])
     if rdeps:
         ebuildgen['rdeps'] = 'ruby_add_rdepend \"%s\"' % rdeps
     else:
         ebuildgen['rdeps'] = ''
-    bdeps = create_deps(res_pkg['dependencies']['development'])
+    bdeps = create_deps(res_pkg_search['dependencies']['development'])
     if bdeps:
         ebuildgen['bdeps'] = 'ruby_add_bdepend \"%s\"' % bdeps
     else:
@@ -183,12 +184,13 @@ def create_deps(dependencies):
                     depversion[-1] = str(int(depversion[-1]) + 1)
                     depversion = '.'.join(depversion)
                     calc_deps.append('%sdev-ruby/%s%s%s' % (depoperator,
-                                                        dep['name'], separator,
-                                                        depversion))
+                                                            dep['name'],
+                                                            separator,
+                                                            depversion))
             else:
                 calc_deps.append('%sdev-ruby/%s%s%s' % (depoperator,
-                                                        dep['name'], separator,
-                                                        depversion))
+                                                        dep['name'],
+                                                        separator, depversion))
 
     return '\n\t'.join(calc_deps)
 
@@ -205,8 +207,8 @@ def create_ebuild(package_name, version, targets, stdout):
     template_dir = os.path.dirname(os.path.abspath(__file__))
     jj2_env = Environment(loader=FileSystemLoader(template_dir),
                           trim_blocks=True)
-    res_pkg_search, res_pkg = get_json(package_name, version)
-    ebuildgen = craft_json(res_pkg_search, res_pkg)
+    res_pkg, res_pkg_search = get_json(package_name, version)
+    ebuildgen = craft_json(res_pkg, res_pkg_search)
     ebuildgen['ruby_targets'] = targets
     ebuildgen['year'] = date.today().year
 
