@@ -15,11 +15,11 @@ LICENSE="{{ ebuildgen.licenses }}"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
-
 {% if ebuildgen.rdeps %}
-{{ ebuildgen.rdeps -}}
+
+{{ ebuildgen.rdeps }}
 {% endif %}
 {% if ebuildgen.bdeps %}
 
-{{ ebuildgen.bdeps -}}
+{{ ebuildgen.bdeps }}
 {% endif %}
